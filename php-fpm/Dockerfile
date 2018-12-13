@@ -17,6 +17,8 @@ RUN yum -y --setopt=tsflags=nodocs update && \
         php72u-soap \
         php72u-xml \
         php72u-xdebug && \
+        yum -y install gpg && \
+        yum install php-pear-crypt-gpg && \
         yum clean all
 
 RUN rm /etc/php-fpm.d/www.conf

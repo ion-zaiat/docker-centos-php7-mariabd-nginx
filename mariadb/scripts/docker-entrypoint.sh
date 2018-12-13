@@ -234,13 +234,8 @@ else
 
         if [ "${MYSQL_USER}" -a "${MYSQL_PASSWORD}" ]; then
 
-            HOST="%"
-            if [ "${MYSQL_HOST}" ]; then
-                HOST=${MYSQL_HOST}
-            fi
-
-	        echo "CREATE USER '${MYSQL_USER}'@'${HOST}' IDENTIFIED BY '${MYSQL_PASSWORD}' ;" | mysql --protocol=socket -uroot -p"${MYSQL_ROOT_PASSWORD}"
-            echo "GRANT ALL ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'${HOST}' ;" | mysql --protocol=socket -uroot -p"${MYSQL_ROOT_PASSWORD}"
+	        echo "CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}' ;" | mysql --protocol=socket -uroot -p"${MYSQL_ROOT_PASSWORD}"
+            echo "GRANT ALL ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%' ;" | mysql --protocol=socket -uroot -p"${MYSQL_ROOT_PASSWORD}"
             echo 'FLUSH PRIVILEGES ;' | mysql --protocol=socket -uroot -p"${MYSQL_ROOT_PASSWORD}"
 	    fi
     fi
@@ -257,7 +252,6 @@ else
 		sleep 1s
 		i=$(( i + 1 ))
 	done
-
 
 	# Check if it is still running
 	if pgrep mysqld >/dev/null 2>&1; then
