@@ -1,0 +1,56 @@
+version: '3.5'
+
+services:
+
+  php-fpm:
+#    build:
+#      context: ./php-fpm
+#      dockerfile: Dockerfile
+    container_name: centos7-php
+    image: sentrybay-php:v1
+    tty: true
+    working_dir: /${APP_WORKING_DIR}
+    volumes:
+      - ../${APP_SRC_DIR}:/${APP_WORKING_DIR}
+    environment:
+      XDEBUG_CONFIG: "remote_host=192.168.1.18 remote_enable=1 idekey=${PHP_XDEBUG_IDE_KEY} remote_port=9000"
+      PHP_IDE_CONFIG: "serverName=Localhost"
+    ports:
+      - ${PHP_LOCAL_PORT}:${PHP_CONTAINER_PORT}
+    depends_on:
+      - db
+
+  webserver:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: centos7-nginx
+    image: sentrybay-nginx:v1
+    tty: true
+    working_dir: /${APP_WORKING_DIR}
+    volumes:
+      - ../${APP_SRC_DIR}:/${APP_WORKING_DIR}
+      - ./nginx/etc/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - ${NGINX_LOCAL_PORT}:${NGINX_CONTAINER_PORT}
+    depends_on:
+      - php-fpm
+
+  db:
+    build:
+      context: ./mariadb
+      dockerfile: Dockerfile
+    container_name: db-server
+    image: sentrybay-mariadb:v1
+    tty: true
+    ports:
+      - ${DB_LOCAL_PORT}:${DB_CONTAINER_PORT}
+    volumes:
+      - ../docker/data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_HOST=${DB_HOST}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_USER=${DB_ROOT_USER}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
